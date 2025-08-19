@@ -1,11 +1,24 @@
-export default Fuse
+export default Fuse;
 
+/**
+ * Fuse is a powerful, lightweight fuzzy-search library with zero dependencies.
+ * It provides fuzzy searching capabilities for JavaScript applications.
+ *
+ * @template T The type of objects in the collection to search through
+ */
 declare class Fuse<T> {
+  /**
+   * Creates a new Fuse instance for fuzzy searching.
+   *
+   * @param list - The array of objects to search through
+   * @param options - Configuration options for the search behavior
+   * @param index - Pre-built index to use (optional, will be created if not provided)
+   */
   public constructor(
     list: ReadonlyArray<T>,
     options?: IFuseOptions<T>,
-    index?: FuseIndex<T>
-  )
+    index?: FuseIndex<T>,
+  );
   /**
    * Search function for the Fuse instance.
    *
@@ -26,37 +39,43 @@ declare class Fuse<T> {
    */
   public search<R = T>(
     pattern: string | Expression,
-    options?: FuseSearchOptions
-  ): FuseResult<R>[]
+    options?: FuseSearchOptions,
+  ): FuseResult<R>[];
 
-  public setCollection(docs: ReadonlyArray<T>, index?: FuseIndex<T>): void
+  /**
+   * Sets a new collection of documents to search through, optionally with a pre-built index.
+   *
+   * @param docs - The new array of documents to search through
+   * @param index - Optional pre-built index for the documents
+   */
+  public setCollection(docs: ReadonlyArray<T>, index?: FuseIndex<T>): void;
 
   /**
    * Adds a doc to the end the list.
    */
-  public add(doc: T): void
+  public add(doc: T): void;
 
   /**
    * Removes all documents from the list which the predicate returns truthy for,
    * and returns an array of the removed docs.
    * The predicate is invoked with two arguments: (doc, index).
    */
-  public remove(predicate: (doc: T, idx: number) => boolean): T[]
+  public remove(predicate: (doc: T, idx: number) => boolean): T[];
 
   /**
    * Removes the doc at the specified index.
    */
-  public removeAt(idx: number): void
+  public removeAt(idx: number): void;
 
   /**
    * Returns the generated Fuse index
    */
-  public getIndex(): FuseIndex<T>
+  public getIndex(): FuseIndex<T>;
 
   /**
    * Return the current version.
    */
-  public static version: string
+  public static version: string;
 
   /**
    * Use this method to pre-generate the index from the list, and pass it
@@ -87,43 +106,118 @@ declare class Fuse<T> {
   public static createIndex<U>(
     keys: Array<FuseOptionKey<U>>,
     list: ReadonlyArray<U>,
-    options?: FuseIndexOptions<U>
-  ): FuseIndex<U>
+    options?: FuseIndexOptions<U>,
+  ): FuseIndex<U>;
 
+  /**
+   * Parses a serialized index back into a FuseIndex instance.
+   * This is useful when you want to store and restore pre-built indices.
+   *
+   * @template U The type of objects the index was built for
+   * @param index - The serialized index object containing keys and records
+   * @param options - Optional configuration for the index
+   * @returns A FuseIndex instance
+   */
   public static parseIndex<U>(
     index: {
-      keys: ReadonlyArray<string>
-      records: FuseIndexRecords
+      keys: ReadonlyArray<string>;
+      records: FuseIndexRecords;
     },
-    options?: FuseIndexOptions<U>
-  ): FuseIndex<U>
+    options?: FuseIndexOptions<U>,
+  ): FuseIndex<U>;
 
-  public static config: Required<IFuseOptions<any>>
-}
-
-export declare class FuseIndex<T> {
-  public constructor(options?: FuseIndexOptions<T>)
-  public setSources(docs: ReadonlyArray<T>): void
-  public setKeys(keys: ReadonlyArray<string>): void
-  public setIndexRecords(records: FuseIndexRecords): void
-  public create(): void
-  public add(doc: T): void
-  public toJSON(): {
-    keys: ReadonlyArray<string>
-    records: FuseIndexRecords
-  }
-}
-
-export type FuseGetFunction<T> = (
-  obj: T,
-  path: string | string[]
-) => ReadonlyArray<string> | string
-
-export type FuseIndexOptions<T> = {
-  getFn: FuseGetFunction<T>
+  /**
+   * Default configuration options for Fuse instances.
+   * Contains the default values for all available options.
+   */
+  public static config: Required<IFuseOptions<any>>;
 }
 
 /**
+ * FuseIndex is responsible for creating and managing search indices.
+ * It handles the indexing of documents to enable efficient fuzzy searching.
+ *
+ * @template T The type of objects being indexed
+ */
+export declare class FuseIndex<T> {
+  /**
+   * Creates a new FuseIndex instance.
+   *
+   * @param options - Configuration options for the index
+   */
+  public constructor(options?: FuseIndexOptions<T>);
+
+  /**
+   * Sets the source documents for the index.
+   *
+   * @param docs - The array of documents to index
+   */
+  public setSources(docs: ReadonlyArray<T>): void;
+
+  /**
+   * Sets the keys/paths that should be indexed from the documents.
+   *
+   * @param keys - Array of key paths to index
+   */
+  public setKeys(keys: ReadonlyArray<string>): void;
+
+  /**
+   * Sets pre-computed index records.
+   *
+   * @param records - The index records to use
+   */
+  public setIndexRecords(records: FuseIndexRecords): void;
+
+  /**
+   * Creates the index from the configured sources and keys.
+   */
+  public create(): void;
+
+  /**
+   * Adds a document to the existing index.
+   *
+   * @param doc - The document to add to the index
+   */
+  public add(doc: T): void;
+
+  /**
+   * Serializes the index to JSON format for storage or transmission.
+   *
+   * @returns An object containing the keys and records of the index
+   */
+  public toJSON(): {
+    keys: ReadonlyArray<string>;
+    records: FuseIndexRecords;
+  };
+}
+
+/**
+ * Function type for retrieving values from objects during indexing.
+ * Used to extract searchable text from complex object structures.
+ *
+ * @template T The type of object being accessed
+ * @param obj - The object to extract values from
+ * @param path - The path or array of paths to the desired value(s)
+ * @returns The extracted string value(s)
+ */
+export type FuseGetFunction<T> = (
+  obj: T,
+  path: string | string[],
+) => ReadonlyArray<string> | string;
+
+/**
+ * Configuration options for FuseIndex instances.
+ *
+ * @template T The type of objects being indexed
+ */
+export type FuseIndexOptions<T> = {
+  getFn: FuseGetFunction<T>;
+};
+
+/**
+ * Represents the structure of items used in sorting functions.
+ * Contains the indexed values for each field that was searched.
+ *
  * @example
  * ```ts
  * {
@@ -142,10 +236,13 @@ export type FuseIndexOptions<T> = {
  * ```
  */
 export type FuseSortFunctionItem = {
-  [key: string]: { $: string } | { $: string; idx: number }[]
-}
+  [key: string]: { $: string } | { $: string; idx: number }[];
+};
 
 /**
+ * Represents a match found during fuzzy searching.
+ * Contains details about where and how well the pattern matched.
+ *
  * @example
  * ```ts
  * {
@@ -157,13 +254,16 @@ export type FuseSortFunctionItem = {
  * ```
  */
 export type FuseSortFunctionMatch = {
-  score: number
-  key: string
-  value: string
-  indices: ReadonlyArray<number>[]
-}
+  score: number;
+  key: string;
+  value: string;
+  indices: ReadonlyArray<number>[];
+};
 
 /**
+ * Extended version of FuseSortFunctionMatch for matches within arrays.
+ * Includes an index indicating which array element was matched.
+ *
  * @example
  * ```ts
  * {
@@ -176,22 +276,37 @@ export type FuseSortFunctionMatch = {
  * ```
  */
 export type FuseSortFunctionMatchList = FuseSortFunctionMatch & {
-  idx: number
-}
-
-export type FuseSortFunctionArg = {
-  idx: number
-  item: FuseSortFunctionItem
-  score: number
-  matches?: (FuseSortFunctionMatch | FuseSortFunctionMatchList)[]
-}
-
-export type FuseSortFunction = (
-  a: FuseSortFunctionArg,
-  b: FuseSortFunctionArg
-) => number
+  idx: number;
+};
 
 /**
+ * Argument passed to custom sort functions.
+ * Contains all information needed to compare search results.
+ */
+export type FuseSortFunctionArg = {
+  idx: number;
+  item: FuseSortFunctionItem;
+  score: number;
+  matches?: (FuseSortFunctionMatch | FuseSortFunctionMatchList)[];
+};
+
+/**
+ * Custom function type for sorting search results.
+ * Should return a negative number if 'a' should come before 'b',
+ * positive if 'a' should come after 'b', or zero if they're equal.
+ *
+ * @param a - First item to compare
+ * @param b - Second item to compare
+ * @returns Comparison result (-1, 0, or 1)
+ */
+export type FuseSortFunction = (
+  a: FuseSortFunctionArg,
+  b: FuseSortFunctionArg,
+) => number;
+
+/**
+ * Represents an indexed record entry object with normalized values.
+ *
  * @example
  * ```ts
  * title: {
@@ -202,12 +317,15 @@ export type FuseSortFunction = (
  */
 export type RecordEntryObject = {
   /** The text value */
-  v: string
+  v: string;
   /** The field-length norm */
-  n: number
-}
+  n: number;
+};
 
 /**
+ * Represents an array of indexed record entries with position information.
+ * Used for fields that contain arrays of searchable values.
+ *
  * @example
  * ```ts
  * 'author.tags.name': [{
@@ -219,14 +337,19 @@ export type RecordEntryObject = {
  */
 export type RecordEntryArrayItem = ReadonlyArray<
   RecordEntryObject & { i: number }
->
-
-// TODO: this makes it difficult to infer the type. Need to think more about this
-export type RecordEntry = {
-  [key: string]: RecordEntryObject | RecordEntryArrayItem
-}
+>;
 
 /**
+ * Union type representing either a single record entry or an array of entries.
+ * Used to handle both simple fields and array fields in the index.
+ */
+export type RecordEntry = {
+  [key: string]: RecordEntryObject | RecordEntryArrayItem;
+};
+
+/**
+ * Represents a complete indexed record for an object with multiple searchable fields.
+ *
  * @example
  * ```ts
  * {
@@ -245,11 +368,13 @@ export type RecordEntry = {
  */
 export type FuseIndexObjectRecord = {
   /** The index of the record in the source list */
-  i: number
-  $: RecordEntry
-}
+  i: number;
+  $: RecordEntry;
+};
 
 /**
+ * Represents a simple indexed record for string-only collections.
+ *
  * @example
  * ```ts
  * {
@@ -264,18 +389,24 @@ export type FuseIndexObjectRecord = {
  */
 export type FuseIndexStringRecord = {
   /** The index of the record in the source list */
-  i: number
+  i: number;
   /** The text value */
-  v: string
+  v: string;
   /** The field-length norm */
-  n: number
-}
-
-export type FuseIndexRecords =
-  | ReadonlyArray<FuseIndexObjectRecord>
-  | ReadonlyArray<FuseIndexStringRecord>
+  n: number;
+};
 
 /**
+ * Union type for index records, supporting both object-based and string-based indices.
+ */
+export type FuseIndexRecords =
+  | ReadonlyArray<FuseIndexObjectRecord>
+  | ReadonlyArray<FuseIndexStringRecord>;
+
+/**
+ * Configuration object for specifying searchable keys with optional weights and custom getters.
+ *
+ * @template T The type of objects being searched
  * @example
  * ```ts
  * {
@@ -285,48 +416,60 @@ export type FuseIndexRecords =
  * ```
  */
 export type FuseOptionKeyObject<T> = {
-  name: string | string[]
-  weight?: number
-  getFn?: (obj: T) => ReadonlyArray<string> | string
-}
+  name: string | string[];
+  weight?: number;
+  getFn?: (obj: T) => ReadonlyArray<string> | string;
+};
 
-export type FuseOptionKey<T> = FuseOptionKeyObject<T> | string | string[]
+/**
+ * Union type for specifying searchable keys in various formats.
+ * Can be a simple string, array of strings, or a configuration object.
+ *
+ * @template T The type of objects being searched
+ */
+export type FuseOptionKey<T> = FuseOptionKeyObject<T> | string | string[];
 
+/**
+ * Main configuration interface for Fuse instances.
+ * Controls all aspects of the search behavior and result formatting.
+ *
+ * @template T The type of objects being searched
+ */
 export interface IFuseOptions<T> {
   /** Indicates whether comparisons should be case sensitive. */
-  isCaseSensitive?: boolean
+  isCaseSensitive?: boolean;
   /** Indicates whether comparisons should ignore diacritics (accents). */
-  ignoreDiacritics?: boolean
+  ignoreDiacritics?: boolean;
   /** Determines how close the match must be to the fuzzy location (specified by `location`). An exact letter match which is `distance` characters away from the fuzzy location would score as a complete mismatch. A `distance` of `0` requires the match be at the exact `location` specified. A distance of `1000` would require a perfect match to be within `800` characters of the `location` to be found using a `threshold` of `0.8`. */
-  distance?: number
+  distance?: number;
   /** When true, the matching function will continue to the end of a search pattern even if a perfect match has already been located in the string. */
-  findAllMatches?: boolean
+  findAllMatches?: boolean;
   /** The function to use to retrieve an object's value at the provided path. The default will also search nested paths. */
-  getFn?: FuseGetFunction<T>
+  getFn?: FuseGetFunction<T>;
   /** When `true`, search will ignore `location` and `distance`, so it won't matter where in the string the pattern appears. */
-  ignoreLocation?: boolean
+  ignoreLocation?: boolean;
   /** When `true`, the calculation for the relevance score (used for sorting) will ignore the `field-length norm`. */
-  ignoreFieldNorm?: boolean
+  ignoreFieldNorm?: boolean;
   /** Determines how much the `field-length norm` affects scoring. A value of `0` is equivalent to ignoring the field-length norm. A value of `0.5` will greatly reduce the effect of field-length norm, while a value of `2.0` will greatly increase it. */
-  fieldNormWeight?: number
+  fieldNormWeight?: number;
   /** Whether the matches should be included in the result set. When `true`, each record in the result set will include the indices of the matched characters. These can consequently be used for highlighting purposes. */
-  includeMatches?: boolean
+  includeMatches?: boolean;
   /** Whether the score should be included in the result set. A score of `0`indicates a perfect match, while a score of `1` indicates a complete mismatch. */
-  includeScore?: boolean
+  includeScore?: boolean;
   /** List of keys that will be searched. This supports nested paths, weighted search, searching in arrays of `strings` and `objects`. */
-  keys?: Array<FuseOptionKey<T>>
+  keys?: Array<FuseOptionKey<T>>;
   /** Determines approximately where in the text is the pattern expected to be found. */
-  location?: number
+  location?: number;
   /** Only the matches whose length exceeds this value will be returned. (For instance, if you want to ignore single character matches in the result, set it to `2`). */
-  minMatchCharLength?: number
+  minMatchCharLength?: number;
   /** Whether to sort the result list, by score. */
-  shouldSort?: boolean
+  shouldSort?: boolean;
   /** The function to use to sort all the results. The default will sort by ascending relevance score, ascending index. */
-  sortFn?: FuseSortFunction
+  sortFn?: FuseSortFunction;
   /** At what point does the match algorithm give up. A threshold of `0.0` requires a perfect match (of both letters and location), a threshold of `1.0` would match anything. */
-  threshold?: number
+  threshold?: number;
   /** When `true`, it enables the use of unix-like search commands. See [example](/examples.html#extended-search). */
-  useExtendedSearch?: boolean
+  useExtendedSearch?: boolean;
 }
 
 /**
@@ -341,31 +484,48 @@ export interface IFuseOptions<T> {
  * const range: RangeTuple = [startIndex, endIndex];
  * ```
  */
-export type RangeTuple = [number, number]
+export type RangeTuple = [number, number];
 
+/**
+ * Represents detailed information about a match found in the search results.
+ * Contains the matched text, its location, and which field it was found in.
+ */
 export type FuseResultMatch = {
-  indices: ReadonlyArray<RangeTuple>
-  key?: string
-  refIndex?: number
-  value?: string
-}
+  indices: ReadonlyArray<RangeTuple>;
+  key?: string;
+  refIndex?: number;
+  value?: string;
+};
 
+/**
+ * Options for controlling search behavior on a per-query basis.
+ */
 export type FuseSearchOptions = {
-  limit: number
-}
+  limit: number;
+};
 
+/**
+ * Represents a single search result returned by Fuse.
+ * Contains the original item, its relevance score, and match details.
+ *
+ * @template T The type of the original item
+ */
 export type FuseResult<T> = {
-  item: T
-  refIndex: number
-  score?: number
-  matches?: ReadonlyArray<FuseResultMatch>
-}
+  item: T;
+  refIndex: number;
+  score?: number;
+  matches?: ReadonlyArray<FuseResultMatch>;
+};
 
+/**
+ * Union type for different expression formats used in extended search.
+ * Supports simple key-value pairs, path-value pairs, and logical operations.
+ */
 export type Expression =
   | { [key: string]: string }
   | {
-      $path: ReadonlyArray<string>
-      $val: string
-    }
+    $path: ReadonlyArray<string>;
+    $val: string;
+  }
   | { $and?: Expression[] }
-  | { $or?: Expression[] }
+  | { $or?: Expression[] };
