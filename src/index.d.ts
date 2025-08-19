@@ -343,6 +343,7 @@ export type RecordEntryArrayItem = ReadonlyArray<
  * Union type representing either a single record entry or an array of entries.
  * Used to handle both simple fields and array fields in the index.
  */
+// TODO: this makes it difficult to infer the type. Need to think more about this
 export type RecordEntry = {
   [key: string]: RecordEntryObject | RecordEntryArrayItem;
 };
